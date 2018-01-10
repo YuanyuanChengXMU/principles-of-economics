@@ -1,0 +1,302 @@
+---
+title: "Homework 10"
+output:
+  html_document: default
+  pdf_document: default
+---
+### Suggested Solutions
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+rm(list = ls()) 
+```
+
+## Part I
+1. c
+2. a
+3. c
+4. d
+5. a
+6. b
+7. d
+8. c
+9. d
+10. c
+11. b
+12. d
+13. c
+14. b
+15. a
+
+## Part II
+## Problem 1
+### 1.1
+$\mathcal{P}_{2000,2001}^{L}=.8636,\mathcal{P}_{2000,2002}^{L}=.6136\Rightarrow CPI: 100, 86.36, 61.36$
+
+### 1.2
+$\mathcal{P}_{2000,2001}^{L}=.8636,\mathcal{P}_{2000,2001}^{P}=.9167,\mathcal{P}_{2001,2002}^{L}=.7727,\mathcal{P}_{2001,2002}^{P}=.8571$
+$\Rightarrow\mathcal{P}_{2000,2001}^{F}=.8898,\mathcal{P}_{2001,2002}^{F}=.8138,\mathcal{P}_{2000,2001}^{C}=.8898,\mathcal{P}_{2000,2002}^{C}=.7241$
+$\Rightarrow CPI: 100, 88.98, 72.41$
+
+### 1.3
+GDP: 22000, 16500, 12000
+
+### 1.4
+RGDP: 22000, 18000, 14000[^1]
+
+[^1]: $14000 = 20\times200 + 1000\times10$
+
+### 1.5
+RGDP: 13500[^2], 12750, 12000
+
+[^2]: $13500=35\times100+ 500\times20$
+
+### 1.6
+$\mathcal{Q}_{2000,2001}^{L}=.8182,\mathcal{Q}_{2000,2001}^{P}=.8684,\mathcal{Q}_{2001,2002}^{L}=.8485,\mathcal{Q}_{2001,2002}^{P}=.9412$
+$\Rightarrow\mathcal{Q}_{2000,2001}^{F}=.8429,\mathcal{Q}_{2001,2002}^{F}=.8936,\mathcal{Q}_{2000,2001}^{C}=.8429,\mathcal{Q}_{2000,2002}^{C}=.7532$
+$\Rightarrow RGDP: 22000, 18543.8,  16570.4$[^3]
+
+
+[^3]: $16570.4=22000\times\mathcal{Q}_{2000,2002}^{C}$
+
+### 1.7
+RGDP: 15932.02[^4], 13428.83[^5], 12000
+
+[^4]: $15932.02=12000\times\mathcal{Q}_{2002,2000}^{C}=\frac{12000}{\mathcal{Q}_{2000,2002}^{C}}$
+
+[^5]: $13428.83=12000\times\mathcal{Q}_{2002,2001}^{C}=\frac{12000}{\mathcal{Q}_{2001,2002}^{C}}=\frac{12000}{\mathcal{Q}_{2001,2002}^{F}}$
+
+### 1.8
+GDP Deflator: 100, 91.67, 85.71
+
+### 1.9
+GDP Deflator: 100, 88.98, 72.42
+
+## Problem 2
+### 2.1
+$\left(\frac{15676}{10642}\right)^{\frac{1}{10}}-1=.039=3.9\%$
+
+### 2.2
+Real GDP in 2002: $10642\times100/92.2=11542.3$
+
+Real GDP in 2012: $15676\times100/115.4=13584.06$
+
+Annual growth rate: $\left(\frac{13584.06}{11542.3}\right)^{\frac{1}{10}}-1=.016=1.6\%$
+
+## Part III
+## Problem 1
+### 1.1
+2009
+
+### 1.2
+```{r, message=FALSE, warning=FALSE}
+library(quantmod)
+t = "1950-01-01/2015-10-01"
+
+gdpQ = getSymbols('GDP',src='FRED',auto.assign=FALSE)
+rgdpQ = getSymbols('GDPC1',src='FRED',auto.assign=FALSE)
+
+gdpQ = gdpQ[t]
+rgdpQ = rgdpQ[t]
+
+# convert quarterly data into annual data
+gdp = apply.yearly(gdpQ,mean) 
+rgdp = apply.yearly(rgdpQ,mean) 
+
+data = cbind(gdp,rgdp)
+colnames(data) <- c("GDP","Real GDP (chain-weighted, 2009)")
+
+plot(data,legend.loc='topleft',auto.legend=TRUE,main="U.S. GDP (in Billions of Dollars)")
+```
+
+### 1.3
+```{r, message=FALSE, warning=FALSE}
+grgdp = (rgdp/lag(rgdp)-1)*100
+grgdp = grgdp[-1,] #get rid of the first row, which is NA
+barplot(grgdp,main="U.S. GDP Growth Rate")
+```
+
+### 1.4
+```{r, message=FALSE, warning=FALSE}
+grgdpQ_yoy = (rgdpQ/lag(rgdpQ,4)-1)*100
+grgdpQ_qoq = ((rgdpQ/lag(rgdpQ))^4-1)*100
+data = cbind(grgdpQ_yoy,grgdpQ_qoq)
+colnames(data) <- c('YoY Rate','QoQ Annualized Rate')
+t = "2005-01-01/2015-10-01"
+plot(data[t],legend.loc='topright',auto.legend=TRUE,main='U.S. GDP Growth Rate')
+```
+
+### 1.5
+2009.Q2
+
+### 1.6
+2008.Q4
+
+### 1.7
+Q-on-Q annualized rate
+
+## Problem 2
+### 2.1
+```{r, message=FALSE, warning=FALSE}
+t = "2000-01-01/2014-12-01"
+
+china = getSymbols('CHNCPIALLMINMEI',src='FRED',auto.assign=FALSE)
+japan = getSymbols('JPNCPIALLMINMEI',src='FRED',auto.assign=FALSE)
+
+china = china[t]
+japan = japan[t]
+
+# calculate yoy inflation rate
+pi.china = (china/lag(china,12)-1)*100
+pi.japan = (japan/lag(japan,12)-1)*100
+
+pi.china = pi.china[-c(1:12),] #get rid of the first 12 rows, which are NA
+pi.japan = pi.japan[-c(1:12),] #get rid of the first 12 rows, which are NA
+
+data = cbind(pi.china,pi.japan)
+colnames(data) <- c("China","Japan")
+
+plot(data,legend.loc='topleft',auto.legend=TRUE,main="Inflation")
+```
+
+### 2.2
+```{r, message=FALSE, warning=FALSE}
+sum(pi.japan < 0)
+```
+
+### 2.3
+```{r, message=FALSE, warning=FALSE}
+t = "2001-01-01/2015-01-01"
+
+venezuela = getSymbols('FPCPITOTLZGVEN',src='FRED',auto.assign=FALSE)
+
+plot(venezuela[t],main="Venezuela Inflation")
+```
+
+### 2.4
+```{r, message=FALSE, warning=FALSE}
+venezuela["2015"]
+```
+
+## Problem 3
+### 3.1
+```{r, message=FALSE, warning=FALSE}
+t = "2000-01-01/2015-12-01"
+
+cpi = getSymbols('CPIAUCSL',src='FRED',auto.assign=FALSE)
+ccpi = getSymbols('SUUR0000SA0',src='FRED',auto.assign=FALSE)
+pcepi = getSymbols('PCEPI',src='FRED',auto.assign=FALSE)
+
+cpi = cpi[t]
+ccpi = ccpi[t]
+pcepi = pcepi[t]
+
+# set 2000.01 to be base period
+cpi = cpi/coredata(cpi)[1]*100
+ccpi = ccpi/coredata(ccpi)[1]*100
+pcepi = pcepi/coredata(pcepi)[1]*100
+
+data = cbind(cpi,ccpi,pcepi)
+colnames(data) <- c("CPI","C-CPI","PCEPI")
+
+plot(data,legend.loc='topleft',auto.legend=TRUE,main="Price Index")
+```
+
+### 3.2
+```{r, message=FALSE, warning=FALSE}
+pi.cpi = (cpi/lag(cpi,12)-1)*100
+pi.ccpi = (ccpi/lag(ccpi,12)-1)*100
+pi.pcepi = (pcepi/lag(pcepi,12)-1)*100
+
+data = cbind(pi.cpi,pi.ccpi,pi.pcepi)
+colnames(data) <- c("CPI","C-CPI","PCEPI")
+data = data[-c(1:12),] #get rid of the first 12 rows, which are NA
+
+plot(data,legend.loc='topleft',auto.legend=TRUE,main="Inflation")
+```
+
+### 3.3
+On average CPI-U > C-CPI-U > PCEPI
+
+### 3.4
+```{r, message=FALSE, warning=FALSE}
+t = "2000-01-01/2015-12-01"
+
+cpicore = getSymbols('CPILFESL',src='FRED',auto.assign=FALSE)
+pcepicore = getSymbols('PCEPILFE',src='FRED',auto.assign=FALSE)
+
+cpicore = cpicore[t]
+pcepicore = pcepicore[t]
+
+pi.cpicore = (cpicore/lag(cpicore,12)-1)*100
+pi.pcepicore = (pcepicore/lag(pcepicore,12)-1)*100
+
+data = cbind(pi.cpicore,pi.pcepicore)
+colnames(data) <- c("CPI","PCEPI")
+data = data[-c(1:12),] #get rid of the first 12 rows, which are NA
+
+plot(data,legend.loc='topleft',auto.legend=TRUE,main="Core Inflation")
+```
+
+### 3.4
+(a) higher; higher
+(b) lower than; higher than
+
+### 3.6
+Overall food and energy prices were falling in 2015, contributing negatively to both CPI-U and PCEPI. Altogether food and energy have a larger weight in the CPI basket than in the PCEPI, causing CPI to drop more than PCEPI in 2015. Hence even though core CPI inflation was higher than core PCEPI inflation, headline CPI inflation was lower than headline PCEPI inflation.
+
+### 3.7
+```{r, message=FALSE, warning=FALSE}
+energy = getSymbols('CPIENGSL',src='FRED',auto.assign=FALSE)
+pi.energy = (energy/lag(energy,12)-1)*100
+t = "2001-01-01/2015-12-01" # time range for inflation rate is 2001.01 - 2015.12
+plot(pi.energy[t],main="CPI: Energy")
+```
+
+### 3.8
+Decreasing.  Average inflation rate: 
+
+```{r, message=FALSE, warning=FALSE}
+mean(pi.energy["2015"])
+```
+
+## Problem 4
+### 4.1
+```{r, message=FALSE, warning=FALSE}
+ppi = getSymbols('PPIACO',src='FRED',auto.assign=FALSE)
+ppif = getSymbols('PPIFIS',src='FRED',auto.assign=FALSE)
+cpi = getSymbols('CPIAUCSL',src='FRED',auto.assign=FALSE)
+
+# calculate yoy inflation rate
+pi.ppi = (ppi/lag(ppi,12)-1)*100
+pi.ppif = (ppif/lag(ppif,12)-1)*100
+pi.cpi = (cpi/lag(cpi,12)-1)*100
+
+data = cbind(pi.ppi,pi.ppif,pi.cpi)
+colnames(data) <- c("PPI: All","PPI: Final","CPI")
+
+t = "2012-01-01/2015-12-01" # plot inflation from 2012-01 to 2015-12
+
+plot(data[t],legend.loc='topleft',auto.legend=TRUE,main="Inflation")
+```
+
+### 4.2
+PPI: All is more volatile.  PPI: Final tracks CPI better.
+
+### 4.3
+Rising housing cost (shelter price) in 2015 contributes to CPI but not PPI.
+
+### 4.4
+```{r, message=FALSE, warning=FALSE}
+cpiLessShelter = getSymbols('CUSR0000SA0L2',src='FRED',auto.assign=FALSE)
+pi.cpiLessShelter = (cpiLessShelter/lag(cpiLessShelter,12)-1)*100
+
+data = cbind(pi.ppif,pi.cpiLessShelter)
+colnames(data) <- c("PPI: Final","CPI less shelter")
+
+t = "2012-01-01/2015-12-01" # plot inflation from 2012-01 to 2015-12
+
+plot(data[t],legend.loc='topleft',auto.legend=TRUE,main="Inflation")
+```
+
+### 4.5
+faster; Reason: Housing has a larger weight in the CPI basket than in the PCEPI.
